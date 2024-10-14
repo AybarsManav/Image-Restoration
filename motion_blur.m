@@ -11,14 +11,14 @@ v = 0:255; v = (v - 128) / 256;
 
 [U, V] = meshgrid(u, v);
 
-H = T ./ (pi * (U * a + V * b) + 1e-12) .* ...
+H = T ./ (pi * (U * a + V * b)) .* ...
     sin(pi * (U * a + V * b)) .* ...
     exp(-1i * pi * (U * a + V * b));
 
 % Before applying the inverse filter it is important to handle values of H
 % close to 0.
-
-H(abs(H) < 1e-6) = 1;
+H(isnan(H)) = T;
+H(abs(H) < 1e-4) = T;
 %% Visualize the magnitude and the phase
 figure;
 subplot(2, 1, 1); imagesc((abs(H))); title("Magnitude of H");
