@@ -95,8 +95,8 @@ subplot(2, 2, 2); imagesc(log(1 + abs(wiener_transfer_func)));
 subplot(2, 2, 3); imshow(real(wiener_filtered_image), []);
 subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate)));
 
-wiener_filtered_mse = computeMSE(im, real(wiener_filtered_image))
-wiener_filtered_snr = computeSNR_db(im, real(wiener_filtered_image))
+wiener_filtered_mse = computeMSE(im, real(wiener_filtered_image));
+wiener_filtered_snr = computeSNR_db(im, real(wiener_filtered_image));
 
 
 %% Wiener Filtering of noisy image
@@ -112,21 +112,19 @@ subplot(2, 2, 2); imagesc(log(1 + abs(wiener_transfer_func)));
 subplot(2, 2, 3); imshow(real(wiener_filtered_image), []);
 subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate)));
 
-wiener_filtered_mse = computeMSE(im, real(wiener_filtered_image))
-wiener_filtered_snr = computeSNR_db(im, real(wiener_filtered_image))
-%% GEOMETRIC MEAN FILTER
-alpha = 0.2;
+wiener_noisy_filtered_mse = computeMSE(im, real(wiener_filtered_image));
+wiener_noisy_filtered_snr = computeSNR_db(im, real(wiener_filtered_image));
+%% GEOMETRIC MEAN FILTER with Motion Blur only
+alpha = 1;
 beta = 1;
-K = 5;
-H_conj = conj(H);
-G_M_filter = ((H_conj./(H.*H_conj)).^alpha).*(H_conj./(H_conj.*H + beta*K)).^(1-alpha);
-fft_estimate_gme = G_M_filter .* fft_motion_blurred;
-gme_filtered_image = ifft2(fftshift(fft_estimate_gme));
-figure;
-subplot(2, 2, 1); imagesc(log(1 + abs(fft_motion_blurred)));
-subplot(2, 2, 2); imagesc(log(1 + abs(G_M_filter)));
-subplot(2, 2, 3); imshow(real(gme_filtered_image), []);
-subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate_gme)));
+k = 10;
+[~,~,restored] = geometricmeanf(fft_motion_blurred,H,alpha,beta,k);
+gme_filtered_mse = computeMSE(im, real(restored));
+gme_filtered_snr = computeSNR_db(im, real(restored));
+% GEOMETRIC MEAN FILTER with Motion Blur and Noise
+[~,~,restored] = geometricmeanf(fft_motion_blurred_noisy,H,alpha,beta,k);
+gme_noisy_filtered_mse = computeMSE(im, real(restored));
+gme_noisy_filtered_snr = computeSNR_db(im, real(restored));
 %% MSE computation
 function MSE = computeMSE(im1, im2)
     n_elements = numel(im1);
@@ -137,4 +135,18 @@ end
 function SNR_db = computeSNR_db(original_signal, estimated_signal)
     SNR = sum(original_signal.^2, "all") / sum( (original_signal - estimated_signal).^2, "all");
     SNR_db = 10 * log(SNR) / log(10);
+end
+function [GME_filter,fft_estimate_gme,GME_image] = geometricmeanf(image,H,alpha,beta,k)
+    GME_filter = ((conj(H)./(H.*conj(H))).^alpha).*((conj(H)./(conj(H).*H + beta*k)).^(1-alpha));
+    fft_estimate_gme = GME_filter .* image;
+    GME_image = ifft2(fftshift(fft_estimate_gme),'symmetric');
+    figure;
+    subplot(2, 2, 1); imagesc(log(1 + abs(image)));
+    title('Frequency Response of the Motion Blurred Image');
+    subplot(2, 2, 2); imagesc(log(1 + abs(GME_filter)));
+    title('Frequency Response of the Geometric Mean Filter');
+    subplot(2, 2, 3); imshow(real(GME_image), []);
+    title('Restored Image with Geometric Mean Filter');
+    subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate_gme)));
+    title('Frequency Response of the Geometric Mean Filter');
 end
