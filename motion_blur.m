@@ -3,7 +3,8 @@ im  = double(im);
 %%
 figure;
 imshow(im, []);
-%% Visualize Motion Blurred Image
+%% Apply Motion Blur and Visualize Motion Blurred Image
+a = 5; b = 5; T = 1;
 [motion_blurred_image, H] = applyLinearMotionBlur(a, b, T, im, true);
 
 %% Apply Inverse Filtering
@@ -16,7 +17,7 @@ inverse_filtered_snr = computeSNR_db(im, filtered)
 
 
 %% Add noise as well
-mean = 127.5;
+mean = 0;
 varience = 5;
 noise = mean + sqrt(varience) * randn(size(im));
 
