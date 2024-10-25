@@ -114,7 +114,17 @@ subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate)));
 
 wiener_filtered_mse = computeMSE(im, real(wiener_filtered_image))
 wiener_filtered_snr = computeSNR_db(im, real(wiener_filtered_image))
-
+%% GEOMETRIC MEAN FILTER
+alpha = 0.2;
+beta = 1;
+G_M_filter = ((H_conj./(H_wie.*H_conj)).^alpha).*(H_conj./(H_conj.*H_wie + beta*K)).^(1-alpha);
+fft_estimate_gme = G_M_filter .* fft_motion_blurred;
+gme_filtered_image = ifft2(fftshift(fft_estimate_gme));
+figure;
+subplot(2, 2, 1); imagesc(log(1 + abs(fft_motion_blurred)));
+subplot(2, 2, 2); imagesc(log(1 + abs(G_M_filter)));
+subplot(2, 2, 3); imshow(real(gme_filtered_image), []);
+subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate_gme)));
 %% MSE computation
 function MSE = computeMSE(im1, im2)
     n_elements = numel(im1);
