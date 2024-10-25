@@ -117,7 +117,9 @@ wiener_filtered_snr = computeSNR_db(im, real(wiener_filtered_image))
 %% GEOMETRIC MEAN FILTER
 alpha = 0.2;
 beta = 1;
-G_M_filter = ((H_conj./(H_wie.*H_conj)).^alpha).*(H_conj./(H_conj.*H_wie + beta*K)).^(1-alpha);
+K = 5;
+H_conj = conj(H);
+G_M_filter = ((H_conj./(H.*H_conj)).^alpha).*(H_conj./(H_conj.*H + beta*K)).^(1-alpha);
 fft_estimate_gme = G_M_filter .* fft_motion_blurred;
 gme_filtered_image = ifft2(fftshift(fft_estimate_gme));
 figure;
