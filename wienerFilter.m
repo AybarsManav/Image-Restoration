@@ -9,10 +9,10 @@ wiener_filtered_image = real(ifft2(fftshift(fft_estimate), "symmetric"));
 
 if plot
     figure;
-    subplot(2, 2, 1); imagesc(log(1 + abs(fft_motion_blurred_noisy)));
-    subplot(2, 2, 2); imagesc(log(1 + abs(wiener_transfer_func)));
-    subplot(2, 2, 4); imagesc(log(1 + abs(fft_estimate)));
-    subplot(2, 2, 3); imshow(wiener_filtered_image, []);
+    subplot(2, 2, 1); imagesc(log(1 + abs(fft_motion_blurred_noisy))); title("Spectrum of Noisy Motion Blurred Image");
+    subplot(2, 2, 2); imagesc(log(1 + abs(wiener_transfer_func))); title("Spectrum of Wiener Filter");
+    subplot(2, 2, 3); imagesc(log(1 + abs(fft_estimate))); title("Spectrum of Filtered Image");
+    subplot(2, 2, 4); imshow(wiener_filtered_image, []); title("Restored Image");
 end
 
 end

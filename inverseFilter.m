@@ -1,7 +1,5 @@
-function inverse_filtered = inverseFilter(motion_blurred_image, fft_deformation,var_vec,plot)
-    mean = 0;
-    noise = mean + sqrt(var_vec) * randn(size(motion_blurred_image));
-    motion_blurred_image = motion_blurred_image + noise;
+function inverse_filtered = inverseFilter(motion_blurred_image, fft_deformation,plot)
+
     H = fft_deformation;
     fft_motion_blurred = fftshift(fft2(motion_blurred_image));
     fft_filtered = fft_motion_blurred ./ H;
